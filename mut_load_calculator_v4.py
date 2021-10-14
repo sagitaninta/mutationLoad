@@ -9,8 +9,9 @@ import regex as re
 ## Specify input file and extract sample name:
 bed_file = sys.argv[1]
 sift_bed = sys.argv [2]
-sample_name = re.split("\.", bed_file) # Split on dots in name
-sample_name = sample_name[0] # Take name before first dot to get sample name
+#sample_name = re.split("\.", bed_file) # Split on dots in name
+#sample_name = sample_name[0] # Take name before first dot to get sample name
+sample_name = bed_file
 out_file = sys.argv[3]
 h = float(sys.argv[4])
 
@@ -197,7 +198,7 @@ sift_der = {"A":(1,2,3), "C":(0,2,3), "G":(0,1,3), "T":(0,1,2)}
 def sift_load(allele,state,anc):
     s=0
     for allele in state[anc]:
-        s += sift[allele]
+        s += 1-sift[allele]
     return(s)
 
 ## Calculate load for each line and pr of having homozygous derived/homozygous transversion:
@@ -229,20 +230,20 @@ with open(sift_bed, "r") as file:
                 
                 if anc == "A":
                     sift_score = sift_load(sift, sift_der, "A")
-                    sift_homLoad = pr_hom_der * (1-sift_score)
-                    sift_hetLoad = h * (((1-sift_score) * pr_het_der) + ((1-sift_score) * pr_het_anc * 0.5))
+                    sift_homLoad = pr_hom_der * sift_score
+                    sift_hetLoad = h * ((sift_score * pr_het_der) + (sift_score * pr_het_anc * 0.5))
                 elif anc == "C":
                     sift_score = sift_load(sift, sift_der, "C")
-                    sift_homLoad = pr_hom_der * (1-sift_score)
-                    sift_hetLoad = h * (((1-sift_score) * pr_het_der) + ((1-sift_score) * pr_het_anc * 0.5))
+                    sift_homLoad = pr_hom_der * sift_score
+                    sift_hetLoad = h * ((sift_score * pr_het_der) + (sift_score * pr_het_anc * 0.5))
                 elif anc == "G":
                     sift_score = sift_load(sift, sift_der, "G")
-                    sift_homLoad = pr_hom_der * (1-sift_score)
-                    sift_hetLoad = h * (((1-sift_score) * pr_het_der) + ((1-sift_score) * pr_het_anc * 0.5))
+                    sift_homLoad = pr_hom_der * sift_score
+                    sift_hetLoad = h * ((sift_score * pr_het_der) + (sift_score * pr_het_anc * 0.5))
                 elif anc == "T":
                     sift_score = sift_load(sift, sift_der, "T")
-                    sift_homLoad = pr_hom_der * (1-sift_score)
-                    sift_hetLoad = h * (((1-sift_score) * pr_het_der) + ((1-sift_score) * pr_het_anc * 0.5))
+                    sift_homLoad = pr_hom_der * sift_score
+                    sift_hetLoad = h * ((sift_score * pr_het_der) + (sift_score * pr_het_anc * 0.5))
 
                 total_hom_pr += pr_anc + pr_tv
                 total_hom_pr_2 += pr_anc + pr_hom_der

@@ -164,12 +164,16 @@ phastcons_out_file = out_file + "_phastcons_scores.txt"
 summary_out_file = out_file + "_summary_cons_scores.txt"
 
 with open(phylop_out_file, "w") as file:
-    (file.write(sample_name + "\t" + str(total_phylop_pos) + "\t" +  str(phylop_hom_pr) + "\t" + str(phylop_anc) + "\t" + str(phylop_tv) + "\t" + str(total_phylop_het) + "\t" + str(total_phylop) + "\t" + str(total_phylop/phylop_hom_pr) + 
-        "\t" + str(total_phylop_het/total_het_pr) + "\t" + str(total_phylop_hom/total_hom_pr_2) + "\t" + str((total_phylop_het+total_phylop_hom)/(total_het_pr+total_hom_pr_2)) + "\t" + str(h) + "\n"))
+    (file.write(sample_name + "\t" + str(total_phylop_pos) + "\t" +  str(phylop_hom_pr) + "\t" + str(phylop_anc) + "\t" 
+        + str(total_phylop) + "\t" + str(total_phylop_het) + "\t" + str(total_phylop_hom) + "\t" 
+        + str(total_phylop/phylop_hom_pr) + "\t" + str(total_phylop_het/total_het_pr) + "\t" + str(total_phylop_hom/total_hom_pr_2) + "\t" 
+        + str((total_phylop_het+total_phylop_hom)/(total_het_pr+total_hom_pr_2)) + "\t" + str(h) + "\t" + str("phyloP") + "\n"))
 
 with open(phastcons_out_file, "w") as file:
-    (file.write(sample_name + "\t" + str(total_phastcons_pos)  + "\t" + str(phastcons_hom_pr) + "\t" + str(phastcons_anc) + "\t" + str(phastcons_tv) + "\t" + str(total_phastcons_het) + "\t" + str(total_phastcons) + "\t" + str(total_phastcons/phastcons_hom_pr) + 
-        "\t" + str(total_phastcons_het/total_het_pr) + "\t" + str(total_phastcons_hom/total_hom_pr_2) + "\t" + str((total_phastcons_het+total_phastcons_hom)/(total_het_pr+total_hom_pr_2)) + "\t" + str(h) + "\n"))
+    (file.write(sample_name + "\t" + str(total_phastcons_pos)  + "\t" + str(phastcons_hom_pr) + "\t" + str(phastcons_anc) + "\t" 
+        + str(total_phastcons) + "\t" + str(total_phastcons_het) + "\t" + str(total_phastcons_hom) + "\t" 
+        + str(total_phastcons/phastcons_hom_pr) + "\t" + str(total_phastcons_het/total_het_pr) + "\t" + str(total_phastcons_hom/total_hom_pr_2) + "\t" 
+        + str((total_phastcons_het+total_phastcons_hom)/(total_het_pr+total_hom_pr_2)) + "\t" + str(h) + str("phastcons") + "\n"))
 
 with open(summary_out_file, "w") as file:
     (file.write(sample_name + "\t" + str(total_pos) + "\t" + str(total_hom_pr) + "\t" + str(total_hom_pr_2) + "\t" + str(total_hom_der) + "\t" +
@@ -192,14 +196,6 @@ total_sift_hom = 0.0
 
 # Load scores:
 total_sift = 0.0
-
-sift_der = {"A":(1,2,3), "C":(0,2,3), "G":(0,1,3), "T":(0,1,2)}
-
-def sift_load(allele,state,anc):
-    s=0
-    for allele in state[anc]:
-        s += 1-sift[allele]
-    return(s)
 
 ## Calculate load for each line and pr of having homozygous derived/homozygous transversion:
 
@@ -228,22 +224,27 @@ with open(sift_bed, "r") as file:
                 pr_het_der = geno_prob(het_genotypes, hetDer, anc)
                 pr_het_anc = geno_prob(het_genotypes, hetAnc, anc)
                 
+
                 if anc == "A":
-                    sift_score = sift_load(sift, sift_der, "A")
-                    sift_homLoad = pr_hom_der * sift_score
-                    sift_hetLoad = h * ((sift_score * pr_het_der) + (sift_score * pr_het_anc * 0.5))
+                    sift_homLoad = ((1-sift[1]) * post_prs[4]) + ((1-sift[2]) * post_prs[7]) + ((1-sift[3]) * post_prs[9]) # sift score for CC, GG, TT
+                    sift_hetDerLoad = ((1-sift[1]) * (post_prs[5]+post_prs[6])) + ((1-sift[2]) * (post_prs[5]+post_prs[8])) + ((1-sift[3]) * (post_prs[6]+post_prs[8])) # sift score for CG,CT, CG,GT, CT,GT
+                    sift_hetAncLoad = 0.5 * (((1-sift[1]) * post_prs[1]) + ((1-sift[2]) * post_prs[2]) + ((1-sift[3]) * post_prs[3])) # sift score for AC, AG, AT
+                    sift_hetLoad = h * (sift_hetDerLoad + sift_hetAncLoad)
                 elif anc == "C":
-                    sift_score = sift_load(sift, sift_der, "C")
-                    sift_homLoad = pr_hom_der * sift_score
-                    sift_hetLoad = h * ((sift_score * pr_het_der) + (sift_score * pr_het_anc * 0.5))
+                    sift_homLoad = ((1-sift[0]) * post_prs[0]) + ((1-sift[2]) * post_prs[7]) + ((1-sift[3]) * post_prs[9]) # sift score for AA, GG, TT
+                    sift_hetDerLoad = ((1-sift[0]) * (post_prs[2]+post_prs[3])) + ((1-sift[2]) * (post_prs[2]+post_prs[8])) + ((1-sift[3]) * (post_prs[3]+post_prs[8])) # sift score for AG,AT AG,GT, AT,GT
+                    sift_hetAncLoad = 0.5 * (((1-sift[0]) * post_prs[1]) + ((1-sift[2]) * post_prs[5]) + ((1-sift[3]) * post_prs[6])) # sift score for AC, CG, CT
+                    sift_hetLoad = h * (sift_hetDerLoad + sift_hetAncLoad)
                 elif anc == "G":
-                    sift_score = sift_load(sift, sift_der, "G")
-                    sift_homLoad = pr_hom_der * sift_score
-                    sift_hetLoad = h * ((sift_score * pr_het_der) + (sift_score * pr_het_anc * 0.5))
+                    sift_homLoad = ((1-sift[0]) * post_prs[0]) + ((1-sift[1]) * post_prs[4]) + ((1-sift[3]) * post_prs[9]) # sift score for AA, CC, TT
+                    sift_hetDerLoad = ((1-sift[0]) * (post_prs[1]+post_prs[3])) + ((1-sift[1]) * (post_prs[1]+post_prs[6])) + ((1-sift[3]) * (post_prs[3]+post_prs[6])) # sift score for AC,AT AC,CT, AT,CT
+                    sift_hetAncLoad = 0.5 * (((1-sift[0]) * post_prs[2]) + ((1-sift[1]) * post_prs[5]) + ((1-sift[3]) * post_prs[8])) # sift score for AG, CG, GT
+                    sift_hetLoad = h * (sift_hetDerLoad + sift_hetAncLoad)
                 elif anc == "T":
-                    sift_score = sift_load(sift, sift_der, "T")
-                    sift_homLoad = pr_hom_der * sift_score
-                    sift_hetLoad = h * ((sift_score * pr_het_der) + (sift_score * pr_het_anc * 0.5))
+                    sift_homLoad = ((1-sift[0]) * post_prs[0]) + ((1-sift[1]) * post_prs[4]) + ((1-sift[2]) * post_prs[7]) # sift score for AA, CC, GG
+                    sift_hetDerLoad = ((1-sift[0]) * (post_prs[1]+post_prs[2])) + ((1-sift[1]) * (post_prs[1]+post_prs[5])) + ((1-sift[2]) * (post_prs[2]+post_prs[5])) # sift score for A(C,G), C(A,G), G(A,C)
+                    sift_hetAncLoad = 0.5 * (((1-sift[0]) * post_prs[3]) + ((1-sift[1]) * post_prs[6]) + ((1-sift[2]) * post_prs[8])) # sift score for AT, CT, GT
+                    sift_hetLoad = h * (sift_hetDerLoad + sift_hetAncLoad)
 
                 total_hom_pr += pr_anc + pr_tv
                 total_hom_pr_2 += pr_anc + pr_hom_der
@@ -253,18 +254,11 @@ with open(sift_bed, "r") as file:
                 total_anc += pr_anc
                 total_tv += pr_tv
                 total_positions += 1.0
-                #if sifts != 0:
-                        #print(line + [str(sifts)])
-                #print(total_sift)
-                #print(total_hom_pr)
-
-#print(total_sift)
-#print(total_hom_pr)
-#print(total_sift/total_hom_pr)
 
 sift_out_file = out_file + "_sift_scores.txt"
 
 with open(sift_out_file, "w") as file:
-    (file.write(sample_name + "\t" + str(total_positions) + "\t"  + str(total_hom_pr) + "\t" + str(total_hom_pr_2) + "\t" +
-        str(total_anc) + "\t" + str(total_tv) + "\t" + str(total_sift) + "\t" + str(total_sift/total_hom_pr) + "\t" + 
-        str(total_sift_het/total_het) + "\t" + str(total_sift_hom/total_hom_pr_2) + "\t" + str((total_sift_het+total_sift_hom)/(total_het_pr+total_hom_pr_2)) + "\t" + str(h) + "\n"))
+    (file.write(sift_bed + "\t" + str(total_positions) + "\t"  + str(total_hom_pr) + "\t" + str(total_anc) + "\t" + 
+        + str(total_sift) + "\t" + str(total_sift_het) + "\t" + str(total_sift_hom) + "\t" 
+        + str(total_sift/total_hom_pr) + "\t" + str(total_sift_het/total_het) + "\t" + str(total_sift_hom/total_hom_pr_2) + "\t" 
+        + str((total_sift_het+total_sift_hom)/(total_het_pr+total_hom_pr_2)) + "\t" + str(h) + "\t" + str("SIFT") + "\n"))

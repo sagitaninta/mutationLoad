@@ -173,7 +173,7 @@ with open(phastcons_out_file, "w") as file:
     (file.write(sample_name + "\t" + str(total_phastcons_pos)  + "\t" + str(phastcons_hom_pr) + "\t" + str(phastcons_anc) + "\t" 
         + str(total_phastcons) + "\t" + str(total_phastcons_het) + "\t" + str(total_phastcons_hom) + "\t" 
         + str(total_phastcons/phastcons_hom_pr) + "\t" + str(total_phastcons_het/total_het_pr) + "\t" + str(total_phastcons_hom/total_hom_pr_2) + "\t" 
-        + str((total_phastcons_het+total_phastcons_hom)/(total_het_pr+total_hom_pr_2)) + "\t" + str(h) + str("phastcons") + "\n"))
+        + str((total_phastcons_het+total_phastcons_hom)/(total_het_pr+total_hom_pr_2)) + "\t" + str(h) + "\t" + str("phastcons") + "\n"))
 
 with open(summary_out_file, "w") as file:
     (file.write(sample_name + "\t" + str(total_pos) + "\t" + str(total_hom_pr) + "\t" + str(total_hom_pr_2) + "\t" + str(total_hom_der) + "\t" +
@@ -223,7 +223,6 @@ with open(sift_bed, "r") as file:
                 pr_hom_der = geno_prob(hom_genotypes, homDer, anc) # probability of homozygous derived (should be more than hom transversions)
                 pr_het_der = geno_prob(het_genotypes, hetDer, anc)
                 pr_het_anc = geno_prob(het_genotypes, hetAnc, anc)
-                
 
                 if anc == "A":
                     sift_homLoad = ((1-sift[1]) * post_prs[4]) + ((1-sift[2]) * post_prs[7]) + ((1-sift[3]) * post_prs[9]) # sift score for CC, GG, TT
@@ -258,7 +257,7 @@ with open(sift_bed, "r") as file:
 sift_out_file = out_file + "_sift_scores.txt"
 
 with open(sift_out_file, "w") as file:
-    (file.write(sift_bed + "\t" + str(total_positions) + "\t"  + str(total_hom_pr) + "\t" + str(total_anc) + "\t" + 
+    (file.write(sift_bed + "\t" + str(total_positions) + "\t"  + str(total_hom_pr) + "\t" + str(total_anc) + "\t" 
         + str(total_sift) + "\t" + str(total_sift_het) + "\t" + str(total_sift_hom) + "\t" 
         + str(total_sift/total_hom_pr) + "\t" + str(total_sift_het/total_het) + "\t" + str(total_sift_hom/total_hom_pr_2) + "\t" 
         + str((total_sift_het+total_sift_hom)/(total_het_pr+total_hom_pr_2)) + "\t" + str(h) + "\t" + str("SIFT") + "\n"))
